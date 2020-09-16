@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.gxb.picturecanvas.shape.CustomLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/rl_custom"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.gxb.picturecanvas.shape.TPictureCompilerView
+        android:id="@+id/cv_pic"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:clickable="true"/>
+
+    <LinearLayout android:id="@+id/ll_title"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:paddingStart="15dp"
+        android:paddingEnd="15dp"
+        android:onClick="onClick"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="#FF202020">
+        <TextView android:id="@+id/tv_close"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="onClick"
+            android:textSize="17sp"
+            android:textColor="@android:color/white"
+            android:text="关闭" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1"/>
+
+        <ImageView android:id="@+id/iv_previous"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:onClick="onClick"
+            android:visibility="gone"
+            android:src="@drawable/icon_step_previous" />
+
+        <ImageView android:id="@+id/iv_next"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="30dp"
+            android:padding="10dp"
+            android:onClick="onClick"
+            android:visibility="gone"
+            android:src="@drawable/icon_step_next" />
+        <View
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1"/>
+
+        <TextView android:id="@+id/tv_confirm"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="onClick"
+            android:textSize="17sp"
+            android:textColor="#ff06C792"
+            android:text="完成"/>
+    </LinearLayout>
+
+    <RelativeLayout android:id="@+id/rl_bottom"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true" >
+        <RadioGroup android:id="@+id/rg_options"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:gravity="center_horizontal"
+            android:background="#FF202020"
+            android:orientation="horizontal">
+
+            <RadioButton android:id="@+id/rbtn_arrow"
+                android:drawableTop="@drawable/selector_icon_arrow"
+                style="@style/base_radio_1"
+                android:text="箭头"/>
+
+            <RadioButton android:id="@+id/rbtn_line"
+                android:drawableTop="@drawable/selector_icon_oval"
+                style="@style/base_radio_1"
+                android:text="线条"/>
+
+            <RadioButton android:id="@+id/rbtn_text"
+                android:drawableTop="@drawable/selector_icon_text"
+                style="@style/base_radio_1"
+                android:text="文本"/>
+
+        </RadioGroup>
+
+        <TextView android:id="@+id/txt_del"
+            style="@style/base_radio_1"
+            android:drawableTop="@drawable/selector_icon_del"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:background="#FF202020"
+            android:layout_centerHorizontal="true"
+            android:onClick="onClick"
+            android:visibility="gone"
+            android:text="删除"/>
+
+
+    </RelativeLayout>
+
+</com.gxb.picturecanvas.shape.CustomLayout>
