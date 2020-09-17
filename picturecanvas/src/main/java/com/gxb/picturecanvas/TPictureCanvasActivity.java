@@ -16,7 +16,7 @@ import com.gxb.picturecanvas.shape.TextShape;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-public class TPictureCanvasActivity extends AppCompatActivity implements RadioGroup.OnCheckedChangeListener, TPictureCompilerView.OnCanvasListener {
+public class TPictureCanvasActivity extends AppCompatActivity implements RadioGroup.OnCheckedChangeListener, TPictureCompilerView.OnCanvasListener, CustomLayout.OnSoftInputListener{
 
     public static final int REQUEST_CANVAS = 0x0011;
 
@@ -36,12 +36,6 @@ public class TPictureCanvasActivity extends AppCompatActivity implements RadioGr
 
     private AlphaAnimation animHide;
 
-    /**
-     * 图片路径+是否覆盖原路径
-     * @param context
-     * @param path
-     * @param isCover
-     */
     public static void start(Activity context, String path, boolean isCover) {
         context.startActivityForResult(new Intent(context, TPictureCanvasActivity.class)
                 .putExtra("image_path", path).putExtra("isCover", isCover), REQUEST_CANVAS);
@@ -60,7 +54,7 @@ public class TPictureCanvasActivity extends AppCompatActivity implements RadioGr
         animHide = new AlphaAnimation(1,0);
         cv = findViewById(R.id.cv_pic);
 
-        layout.setOnSoftInputListener(cv);
+        layout.setOnSoftInputListener(this);
         animVisble.setDuration(500);
         animHide.setDuration(500);
         cv.setSrcImage(getIntent().getStringExtra("image_path"));
@@ -96,7 +90,7 @@ public class TPictureCanvasActivity extends AppCompatActivity implements RadioGr
     }
 
     @Override
-    public void onCanvas(boolean hasCanvas, boolean unfocus) {
+    public void onCanvas(boolean hideCtrl, boolean unfocus) {
         if(unfocus) {
             rgOptions.setVisibility(View.VISIBLE);
             vDel.setVisibility(View.GONE);
@@ -104,7 +98,7 @@ public class TPictureCanvasActivity extends AppCompatActivity implements RadioGr
             rgOptions.setVisibility(View.GONE);
             vDel.setVisibility(View.VISIBLE);
         }
-        if(hasCanvas) {
+        if(hideCtrl || cv.isEdit()) {
             if(vBottom.getVisibility() != View.GONE) {
                 vTitle.startAnimation(animHide);
                 vBottom.startAnimation(animHide);
@@ -126,5 +120,10 @@ public class TPictureCanvasActivity extends AppCompatActivity implements RadioGr
     public void stepChange(boolean hasPrevious, boolean hasNext) {
         findViewById(R.id.iv_previous).setVisibility(hasPrevious? View.VISIBLE : View.INVISIBLE);
         findViewById(R.id.iv_next).setVisibility(hasNext? View.VISIBLE : View.INVISIBLE);
+    }
+
+    @Override
+    public void onHide() {
+        cv.setFocusShape(null);
     }
 }

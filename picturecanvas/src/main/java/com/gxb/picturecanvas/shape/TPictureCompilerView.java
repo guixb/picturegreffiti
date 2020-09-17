@@ -32,7 +32,7 @@ import androidx.annotation.Nullable;
 
 import static android.text.InputType.TYPE_CLASS_TEXT;
 
-public class TPictureCompilerView extends View implements CustomLayout.OnSoftInputListener {
+public class TPictureCompilerView extends View {
 
     private final int MOVE_THESHOLD = dip2px(5);
     /**
@@ -63,7 +63,7 @@ public class TPictureCompilerView extends View implements CustomLayout.OnSoftInp
     /**
      * 焦点图层
      */
-    private TShape focusShape;
+    public TShape focusShape;
 
     /**
      * 原图
@@ -77,9 +77,9 @@ public class TPictureCompilerView extends View implements CustomLayout.OnSoftInp
      */
     private OnCanvasListener onCanvasListener;
 
-    private String path;
-
     private DisplayMetrics display;
+
+    private String path;
 
     public TPictureCompilerView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
@@ -181,12 +181,13 @@ public class TPictureCompilerView extends View implements CustomLayout.OnSoftInp
                 if(!moveData.move(event.getX(), event.getY(), MOVE_THESHOLD)) return true;
                 onCanvasListener.onCanvas(true, focusShape == null);
                 break;
-            case MotionEvent.ACTION_UP:
-                onCanvasListener.onCanvas(false, focusShape == null);
-                break;
         }
         if(focusShape != null) focusShape.onTouchFocus(moveData, event.getAction());
         else if(newShape != null) newShape.onTouchUnfocus(moveData, event.getAction());
+        // 状态处理完之后在调用显示隐藏
+        if(event.getAction() == MotionEvent.ACTION_UP) {
+            onCanvasListener.onCanvas(false, focusShape == null);
+        }
         return true;
     }
 
@@ -210,7 +211,7 @@ public class TPictureCompilerView extends View implements CustomLayout.OnSoftInp
         if(focusShape != null) {
             focusShape.onDraw(canvas);
             focusShape.onDrawFocus(canvas);
-        // 绘制新增图层
+            // 绘制新增图层
         } else if(newShape != null && newShape.hasCanvas()) {
             newShape.onDraw(canvas);
         }
@@ -221,13 +222,13 @@ public class TPictureCompilerView extends View implements CustomLayout.OnSoftInp
      * 设置焦点Shape，如果该shape不存在队列中则添加
      * @return 是否丢失焦点
      */
-    protected boolean setFocusShape(TShape shape) {
+    public boolean setFocusShape(TShape shape) {
         if(focusShape != shape) {
             if(focusShape != null) focusShape.clearFocus();
             focusShape = shape;
             if(onCanvasListener != null) {
                 onCanvasListener.stepChange(!previous.isEmpty(), !next.isEmpty());
-                onCanvasListener.onCanvas(focusShape != null, focusShape == null);
+                onCanvasListener.onCanvas(false, focusShape == null);
             }
             return focusShape == null;
         }
@@ -290,8 +291,11 @@ public class TPictureCompilerView extends View implements CustomLayout.OnSoftInp
         }
     }
 
-    public String saveBitmapToPath(boolean isCover) {
+    public boolean isEdit() {
+        return focusShape instanceof TextShape && ((TextShape)focusShape).isEdit;
+    }
 
+    public String saveBitmapToPath(boolean isCover) {
         Bitmap img = Bitmap.createBitmap(getMeasuredWidth(), getMeasuredHeight(), Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas();
         canvas.setBitmap(img);
@@ -315,13 +319,8 @@ public class TPictureCompilerView extends View implements CustomLayout.OnSoftInp
         return (int)(dip * scale + 0.5f);
     }
 
-    @Override
-    public void onHide() {
-        setFocusShape(null);
-    }
-
     public interface OnCanvasListener {
-        void onCanvas(boolean hasCanvas, boolean hasFocusShape);
+        void onCanvas(boolean hideCtrl, boolean hasFocusShape);
 
         void stepChange(boolean hasPrevious, boolean hasNext);
     }

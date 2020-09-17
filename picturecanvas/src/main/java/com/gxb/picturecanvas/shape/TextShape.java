@@ -27,13 +27,16 @@ public class TextShape extends TShape {
 
     private RectF rect;
 
+    // 弹出输入框覆盖时 移动到未覆盖区
+    private RectF tmpRect;
+
     // 焦点背景
     protected Paint editPaint;
 
     protected Paint secPaint;
 
     // 是否编辑
-    private boolean isEdit = true;
+    protected boolean isEdit = true;
 
     private StringBuilder text;
 
@@ -48,6 +51,7 @@ public class TextShape extends TShape {
         mPaint = new Paint();
         editPaint = new Paint();
         secPaint = new Paint();
+        tmpRect = new RectF();
         rect = pointF == null?new RectF(DEFAULT_EMPTY, DEFAULT_EMPTY, DEFAULT_EMPTY, DEFAULT_EMPTY) : new RectF(pointF.x, pointF.y, pointF.x + minWidth, DEFAULT_EMPTY);
 
         handlePoints = new PointF[]{new PointF()};
@@ -81,7 +85,21 @@ public class TextShape extends TShape {
             start = cur;
         } while(start > 0);
 
+        // 恢复原始位置
+        if(tmpRect.width() > 0) rect.set(tmpRect);
         rect.bottom = rect.top + (lines.size() + 1f) * textSize;
+        if(isEdit) {
+            // 超出边界则上移
+            if(rect.bottom > view.getMeasuredHeight()) {
+                // 保留历史位置
+                tmpRect.set(rect);
+                rect.bottom = view.getMeasuredHeight();
+                rect.top = rect.bottom - (lines.size() + 1f) * textSize;
+            }
+        } else {
+            // 非编辑状态下重置
+            tmpRect.right = -1;
+        }
         handlePoints[0].set(rect.right, rect.bottom);
 
         if(isEdit) canvas.drawRect(rect, editPaint);
@@ -118,7 +136,7 @@ public class TextShape extends TShape {
     @Override
     protected void move(float dx, float dy) {
         if(isEdit) {
-           // 编辑时候光标
+            // 编辑时候光标
         } else {
             rect.offset(dx, dy);
         }
@@ -147,7 +165,6 @@ public class TextShape extends TShape {
             isEdit = true;
             hisText = text.toString().trim();
             toggleSoftInput(true);
-            view.invalidate();
         }
         if(isEdit) {
             // 如果是编辑状态
