@@ -1,9 +1,12 @@
 package com.gxb.picturecanvas;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
 import android.widget.RadioGroup;
 
@@ -45,6 +48,15 @@ public class TPictureCanvasActivity extends AppCompatActivity implements RadioGr
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_picture_canvas);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            //设置系统状态栏处于可见状态
+            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN);
+            ActionBar actionBar = getActionBar();
+            if(actionBar != null) actionBar.hide();
+        } else {
+            getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                    WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        }
         CustomLayout layout = findViewById(R.id.rl_custom);
         vTitle = findViewById(R.id.ll_title);
         vBottom = findViewById(R.id.rl_bottom);

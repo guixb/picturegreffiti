@@ -23,10 +23,10 @@ allprojects {
 
 ext {
     androids = [
-            compileSdkVersion             : 28,
+            compileSdkVersion             : 29,
             buildToolsVersion             : "28.0.3",
-            minSdkVersion                 : 23,
-            targetSdkVersion              : 28,
+            minSdkVersion                 : 21,
+            targetSdkVersion              : 29,
             versionCode                   : 1,
             ]
 }

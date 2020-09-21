@@ -111,7 +111,7 @@ public class TPictureCompilerView extends View {
         if(src != null && !src.isRecycled()) {
             src.recycle();
         }
-        src = BitmapFactory.decodeFile(path);
+        src = BitmapUtils.rotateImage(getContext(), path);
         invalidate();
     }
 

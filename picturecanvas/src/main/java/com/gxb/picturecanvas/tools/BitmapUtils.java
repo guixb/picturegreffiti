@@ -1,8 +1,14 @@
 package com.gxb.picturecanvas.tools;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+import android.media.ExifInterface;
+import android.net.Uri;
+import android.os.Build;
+import android.os.ParcelFileDescriptor;
+import android.text.TextUtils;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -31,26 +37,65 @@ public class BitmapUtils {
     /**
      * 判断拍照 图片是否旋转
      *
-     * @param degree
-     * @param file
      */
-    public static void rotateImage(int degree, String path) {
+    public static Bitmap rotateImage(Context context, String path) {
+        int degree = readPictureDegree(context, path);
+        // 针对相片有旋转问题的处理方式
+        BitmapFactory.Options opts = new BitmapFactory.Options();
+        opts.inSampleSize = 2;
+        File file = new File(path);
+        Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath(), opts);
         if (degree > 0) {
             try {
-                // 针对相片有旋转问题的处理方式
-                BitmapFactory.Options opts = new BitmapFactory.Options();
-                opts.inSampleSize = 2;
-                File file = new File(path);
-                Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath(), opts);
-                bitmap = rotatingImage(bitmap, degree);
-                if (bitmap != null) {
-                    saveBitmapFile(bitmap, file);
-                    bitmap.recycle();
-                }
+                return rotatingImage(bitmap, degree);
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
+        return bitmap;
+    }
+
+    /**
+     * 读取图片属性：旋转的角度
+     *
+     * @param path 图片绝对路径
+     * @return degree旋转的角度
+     */
+    public static int readPictureDegree(Context context, String path) {
+        int degree = 0;
+        try {
+            ExifInterface exifInterface;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && isContent(path)) {
+                ParcelFileDescriptor parcelFileDescriptor =
+                        context.getContentResolver()
+                                .openFileDescriptor(Uri.parse(path), "r");
+                exifInterface = new ExifInterface(parcelFileDescriptor.getFileDescriptor());
+            } else {
+                exifInterface = new ExifInterface(path);
+            }
+            int orientation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+            switch (orientation) {
+                case ExifInterface.ORIENTATION_ROTATE_90:
+                    degree = 90;
+                    break;
+                case ExifInterface.ORIENTATION_ROTATE_180:
+                    degree = 180;
+                    break;
+                case ExifInterface.ORIENTATION_ROTATE_270:
+                    degree = 270;
+                    break;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return degree;
+    }
+
+    public static boolean isContent(String url) {
+        if (TextUtils.isEmpty(url)) {
+            return false;
+        }
+        return url.startsWith("content://");
     }
 
     /**
